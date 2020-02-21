@@ -14,7 +14,6 @@ Continues to send this packet on login packet response
 
 
 
-
 Device Adapter
 
 Receives the login packet
