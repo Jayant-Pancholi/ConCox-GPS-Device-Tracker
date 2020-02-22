@@ -46,7 +46,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
     data = client_socket.recv(1024)
     data = data.decode('utf-8')
     print("Received GPS_LOCATION_DATA_PACKET_FRAME as - ", data)
-    if data == '78 78 22 22 0F 0C 1D 02 33 05 C9 02 7A C8 18 0C 46 58 60 00 14 00 01 CC 00 28 7D 00 1F 71 ' \
+    if data == '78 78 22 22 0F 0C 1D 02 33 05 C9 02 7A C8 18 0C 46 58 60 4C 15 00 01 CC 00 28 7D 00 1F 71 ' \
                            '00 00 01 00 08 20 86 0D 0A':
         # Sending GPSDataPacketFrame response
         client_socket.sendall(data.encode('utf-8'))

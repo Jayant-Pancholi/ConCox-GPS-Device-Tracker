@@ -1,13 +1,7 @@
-# import os
 import socket
+import traceback
 
-# import sys
-# import pickle
-# import numpy as np
-# import zlib
-
-HOST = '10.16.33.135'
-# HOST = '192.168.1.6'
+HOST = '192.168.1.6'
 PORT = 52191
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
@@ -44,9 +38,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
                         data = data.decode('utf-8')
                         print("Received RESPONSE_HEARTBEAT_DATA_PACKET_FRAME as - ", data)
 
-
                 # sending GPS Location packet
-                data = '78 78 22 22 0F 0C 1D 02 33 05 C9 02 7A C8 18 0C 46 58 60 00 14 00 01 CC 00 28 7D 00 1F 71 00 00 01 00 08 20 86 0D 0A'
+                data = '78 78 22 22 0F 0C 1D 02 33 05 C9 02 7A C8 18 0C 46 58 60 4C 15 00 01 CC 00 28 7D 00 1F 71 00 00 01 00 08 20 86 0D 0A'
                 conn.sendall(data.encode('utf-8'))
                 print("Sent GPS_LOCATION_DATA_PACKET_FRAME as - ", data.encode('utf-8'))
 
@@ -54,10 +47,25 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
                 data = conn.recv(1024)
                 data = data.decode('utf-8')
                 print("Received RESPONSE_GPS_LOCATION_DATA_PACKET_FRAME as - ", data)
-                if data == '78 78 22 22 0F 0C 1D 02 33 05 C9 02 7A C8 18 0C 46 58 60 00 14 00 01 CC 00 28 7D 00 1F 71 00 ' \
-                           '00 01 00 08 20 86 0D 0A':
+
+                if data == '78 78 22 22 0F 0C 1D 02 33 05 C9 02 7A C8 18 0C 46 58 60 4C 15 00 01 CC 00 28 7D 00 1F 71 ' \
+                           '00 00 01 00 08 20 86 0D 0A':
+                    x = [(hex(int(i, 16))) for i in data.split(' ')]
+                    print(x)
+                    y = [(bin(int(i, 16))[2:].zfill(8)) for i in x[20:22]]
+                    z = "".join(y)
+                    print(type(z))
                     f = open("gps.txt", "a+")
-                    f.write("\nGPS_LOCATION_DATA_PACKET is :- \n" + data)
+
+                    q = z[6:]
+                    fin = int(q, 2)
+
+                    f.write(" \n\n\n\t\t\tGPS tracking is ON," if z[3] else " GPS tracking is OFF,")
+                    f.write(" Real time GPS," if z[2] else " Not Real time GPS,")
+                    f.write(" Location at North latitude," if z[5] else " Location at South latitude,")
+                    f.write(" West longitude," if z[4] else " East longitude,")
+                    f.write(" and the course is " + str(fin) + "°")\
+
                     f.close()
 
                 if not data:
@@ -65,5 +73,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
                 data = data.encode('utf-8')
                 conn.sendall(data)
                 server_socket.close()
-    except:
+            server_socket.close()
+    except Exception as e:
+        print(e)
         print("\n\n\t\t\t\t\t\t\t\t\t\t\t *-* CONNECTION CLOSED *-* ")
+
